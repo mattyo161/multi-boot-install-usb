@@ -1,4 +1,4 @@
-# Universal USB Drive
+# Multi-Boot Install USB Drive
 
 Build a single USB drive that can:
 
