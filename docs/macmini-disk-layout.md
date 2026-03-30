@@ -29,16 +29,77 @@
 |  14 |              Apple_APFS | High Siera.           |   31.5 GB   |  disk0s14  | b5afb987-743d-4ca9-bf82-739b84e85ee4 |
 |  15 |               Apple_HFS | ElCapitan             |   21.0 GB   |  disk0s15  |  d9222bb177856e09 |
 
-
-/dev/disk1 (synthesized):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      APFS Container Scheme -                      +31.5 GB    disk1
-                                 Physical Store disk0s14
-   1:                APFS Volume HighSierra              19.0 GB    disk1s1
-   2:                APFS Volume Preboot                 21.7 MB    disk1s2
-   3:                APFS Volume Recovery                512.1 MB   disk1s3
-   4:                APFS Volume VM                      20.5 KB    disk1s4
-
 ## Details on working with MacOS Volumes
 
 - https://eclecticlight.co/2021/11/25/copying-a-mac-volume-to-another-file-system-and-back/
+
+## Update `/etc/grub.d`
+
+With the layout above we can now update our `/etc/grub.d/08_custom` file. This allows us to add a number of custom entries in the order that we want ahead of anything else loaded in grub. More details on grub may follow in the future but for now you can run the following commands on your Linux partition where grub is installed:
+
+```shell
+touch /etc/grub.d/08_custom
+chmod +x /etc/grub.d/08_custom
+# edit the file with vi, nano, ...
+```
+
+### Contents of `/etc/grub.d/08_custom`
+
+```grub
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+
+menuentry "Linux Mint 22.3 Zena" {
+    insmod part_gpt
+    insmod ext2
+    search --no-floppy --fs-uuid --set=root 71e35088-d620-49fa-9a6d-00592765ccdf
+    linux /boot/vmlinuz root=UUID=71e35088-d620-49fa-9a6d-00592765ccdf ro quiet splash
+    initrd /boot/initrd.img
+}
+menuentry "Ubuntu 24.04.4 LTS (24.04)" {
+    insmod part_gpt
+    insmod ext2
+    search --no-floppy --fs-uuid --set=root 51ec7527-3f0f-4441-b789-8ced336fed80
+    linux /boot/vmlinuz root=UUID=51ec7527-3f0f-4441-b789-8ced336fed80 ro quiet splash
+    initrd /boot/initrd.img
+}
+menuentry "MacOS High Sierra (10.13)" {
+    insmod part_gpt
+    insmod hfsplus
+    search --no-floppy --fs-uuid --set=root d9222bbb5afb987-743d-4ca9-bf82-739b84e85ee4177856e09
+    chainloader /System/Library/CoreServices/boot.efi
+}
+menuentry "MacOS Sierra (10.12)" {
+    insmod part_gpt
+    insmod hfsplus
+    search --no-floppy --fs-uuid --set=root 4a7255880f49427f
+    chainloader /System/Library/CoreServices/boot.efi
+}
+menuentry "MacOS El Capitan (10.11)" {
+    insmod part_gpt
+    insmod hfsplus
+    search --no-floppy --fs-uuid --set=root d9222bb177856e09
+    chainloader /System/Library/CoreServices/boot.efi
+}
+menuentry "MacOS Yosemite (10.10)" {
+    insmod part_gpt
+    insmod hfsplus
+    search --no-floppy --fs-uuid --set=root 644e6ee274d25c5f
+    chainloader /System/Library/CoreServices/boot.efi
+}
+menuentry "MacOS Mavericks (10.9)" {
+    insmod part_gpt
+    insmod hfsplus
+    search --no-floppy --fs-uuid --set=root 72c33e498dc80fa4
+    chainloader /System/Library/CoreServices/boot.efi
+}
+menuentry "MacOS Mountain Lion (10.8)" {
+    insmod part_gpt
+    insmod hfsplus
+    search --no-floppy --fs-uuid --set=root c8974fa640f4b164
+    chainloader /System/Library/CoreServices/boot.efi
+}
+```
