@@ -41,6 +41,9 @@ With the layout above we can now update our `/etc/grub.d/08_custom` file. This a
 touch /etc/grub.d/08_custom
 chmod +x /etc/grub.d/08_custom
 # edit the file with vi, nano, ...
+
+# After you update the file you will need to update grub
+sudo update-grub
 ```
 
 ### Contents of `/etc/grub.d/08_custom`
